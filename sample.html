@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<!--時刻の取得に便利なdayjs-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.10.6/dayjs.min.js"></script>
+<!--タイマーの文字フォント-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Graduate&display=swap" rel="stylesheet">
+<!--CSS-->
+<style>
+
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.counter{
+    /*位置*/
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    padding : 12px 10px 5px 10px;
+    /*サイズ*/
+    width: 360px;
+    height: 203px;
+    /*背景設定*/
+    background-image: url("./bg_img/sample.jpg");
+    background-repeat: no-repeat;
+    background-size: 100%;
+}
+
+/*ゲーム残り時間*/
+#announce-text{
+    /*位置*/
+    margin: auto;
+    line-height: 30px;/* 行間 */
+    text-align: center;
+    /*フォント*/
+    font-size: 28px;
+    font-weight: 800;
+    color: #000;
+    text-shadow: 0 0 10px #fff, 0 0 10px #fff, 0 0 10px #fff, 0 0 10px #fff, 0 0 10px #fff, 0 0 10px #fff;
+}
+
+/*120:00*/
+#timer{
+    /*位置*/
+    margin-top: 0.2em;
+    line-height: 1em;/*行間 */
+    letter-spacing: 3px;/*字間*/
+    text-align: center;
+    /*フォント*/
+    font-size: 60px;
+    font-weight: 900;
+    color: #000;
+    text-shadow: -2px -2px 0 #fff, -2px 0 0 #fff, -2px 1px 0 #fff,
+                  0 -2px 0 #fff,                  0 2px 0 #fff,
+                2px -2px 0 #fff,  2px 0 0 #fff,  2px 2px 0 #fff;
+    font-family: 'Graduate', cursive;
+}
+
+/*10,000円*/
+#reword{
+    /*位置*/
+    padding-right: 2em;/*右から空ける距離*/
+    line-height: 1em;/*行間 */
+    text-align: right;
+    /*フォント*/
+	font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: -1.5px -1.5px 0 #777, -1.5px 0 0 #777, -1.5px 1px 0 #777,
+                  0 -1.5px 0 #777,                  0 1.5px 0 #777,
+                1.5px -1.5px 0 #777,  1.5px 0 0 #777,  1.5px 1.5px 0 #777;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+/*円*/
+#currency {font-size: 20px;}
+/* : */
+#colon{
+    vertical-align: 7%;
+    font-size: 45px;
+}
+
+</style>
+</head>
+
+<body>
+<div class="counter">
+
+    <div id="announce-text">ゲーム残り時間</div>
+
+    <p id="timer-container"/>
+    <p id="reword-container"/>
+    <script language="JavaScript">
+        let yen = 0
+        const tmr = document.getElementById("timer-container");
+        const rwd = document.getElementById("reword-container");
+        /*===テスト用===*/
+        /*設定*/
+        const GAME_START = dayjs().add(3,'seconds'); /*現在時刻の3秒後*/
+        const GAME_TIME = 100; /*ゲームの時間（分）を指定*/
+        const YEN_PER_SEC = 17000; /*毎秒上がる金額を設定*/
+        /*===テスト用ここまで===*/
+
+        /*自動設定*/
+        const GAME_END = GAME_START.add(GAME_TIME, 'minute');
+        /*処理内容*/
+        let countdown = setInterval(function(){
+            const now = dayjs();
+            const remaining = (GAME_END.diff(now)+1000)/1000
+            const remaining_m = Math.floor(remaining/60)
+            const remaining_s = Math.floor(remaining%60)
+            
+            /*カウントダウン開始前*/
+            if(now.isBefore(GAME_START)){
+                /*時間の表示*/
+                tmr.innerHTML = `<div id="timer">${String(GAME_TIME).padStart(2,"0")}<span id="colon">:</span>${String(0).padStart(2,"0")}</div>`;
+                /*金額表示の処理*/
+                rwd.innerHTML = `<div id="reword">${String(0)}<span id="currency">円</span></div>`;
+            }
+            /*カウントダウン中*/
+            else {
+                /*時間の表示*/
+                tmr.innerHTML = `<div id="timer">${String(remaining_m).padStart(2,"0")}<span id="colon">:</span>${String(remaining_s).padStart(2,"0")}</div>`;
+                /*金額表示の処理*/
+                rwd.innerHTML = `<div id="reword">${String(yen).replace( /(\d)(?=(\d\d\d)+(?!\d))/g, '$1,')}<span id="currency">円</span></div>`;
+                if(now.isBefore(GAME_END)){yen += YEN_PER_SEC;}
+                /*カウントダウン終了*/
+                else clearInterval(countdown);
+            } 
+        }, 1000)
+    </script> 
+</div>
+</body>
+</html>
